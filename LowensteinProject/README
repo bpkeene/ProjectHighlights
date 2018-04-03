@@ -1,0 +1,109 @@
+#############################################################################################
+# Problem Description
+#############################################################################################
+
+"Zeolites" are solid atomic structures of SiO2; however, typically, there is some Aluminum 
+distributed throughout the lattice, substituted in place for the Silicon.  Typically, 
+protein database files (pdb) describing the atomic configuration are entirely devoid of Aluminum.
+
+The Si:Al ratio plays an important role for simulating specific chemical properties of the 
+zeolite in question, and so it was deemed necessary for a tool capable of reading in these 
+pure SiO2 configurations, and doping it with Aluminum to the specified Si:Al ratio.
+
+There is a catch!
+
+No Aluminum within the structure may have another Aluminum atom as a nearest neighbor.
+
+
+#############################################################################################
+# Solution Description
+#############################################################################################
+
+Using a combination of random 'swap' and 'insert' moves, we are able to randomly assemble 
+an interleaving lattice of Si and Al to the specified ratio, and then output the final configuration.
+
+We optimize the solution by pre-computing the neighboring atoms  of the 
+atoms in the initial configuration - i.e., for a given atom, we know which other atoms 
+are nearby in space.
+By keeping track of this static data structure, we can also maintain an up-to-date list of 
+atom indices that are eligible for the swap or insert moves - so, moves never fail, thereby 
+dramatically increasing the efficiency of the routine.
+
+An 'insertion' move consists of randomly selecting an eligible Si atom, changing its identity 
+to Al, and then updating its neighbors to denote them as 'ineligible' for a swap or insert move,
+since they now directly neighbor an Al atom.
+
+A 'swap' move is a move in which a randomly selected Aluminum is swapped with an eligible Si 
+site.
+
+As we go to lower and lower Si:Al ratios, and the number of eligible Si sites decreases, we
+increase the proportion of 'swap' to 'insert' moves, so that we do not get stuck in a 
+configuration.  However, should this happen, we simply reset to the initial configuration, 
+and begin the process again.
+
+#############################################################################################
+# Solution Description
+#############################################################################################
+Visualizations of the initial conditions and the sample results may be found as .png files:
+
+undoped_visualized.png:  the system described by example.pdb; oxygens are red, silicon are pink
+ratio_1_1_visualized.png: using example.pdb as input, a ratio of 1:1  Si:Al was specified.
+                         oxygens are red, silicon are yellow, aluminum are pink.
+
+ratio_2_1_visualized.png: using example.pdb as input, a ratio of 2:1  Si:Al was specified.
+                         oxygens are red, silicon are yellow, aluminum are pink.
+
+
+#############################################################################################
+# Script - Compiling, using, and the example files provided
+#############################################################################################
+
+
+This script inserts aluminum in to a silicate structure up to the specified Lowenstein ratio.
+ 
+
+
+  To execute in terminal , within this directory:
+  gfortran Lowenstein_Script.f90 -o Lowenstein_Script; ./Lowenstein_Script
+
+
+  File required before running:
+    PDB file of the structure.
+
+
+  File produced:  yournewstructure.xyz
+
+  Format of the input pdb:
+
+ Line 1 is read by format code: (8X,2(F8.4,1X),F8.4,3(F7.3))
+ and assigned, respectively, to xlength, ylength, zlength, alphaAngle, betaAngle, gammaAngle
+ which correspond to the a,b,c,alpha,beta,gamma parameters of a unit cell
+
+
+
+  remaining lines:
+0        1         2         3         4         5         6         7         8         9
+1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+------######--------------------#######-#######-#######---------------------AA----------------------
+
+.
+.
+.
+.
+END
+
+corresponding to:
+      Atom index                 xcoord ycoord zcoord                     element
+
+
+
+The input pdb file must contain: x, y, and z coordinates, and the element associated with that atom number;
+and the parameters of the unit cell: a,b,c, alpha,beta,gamma.
+The only elements permitted in the original structure are Si, O, and Al.
+
+For an example .pdb file, please examine: example.pdb
+
+example_ratio_1_1.xyz is an xyz file for example.pdb with a Lowenstein ratio of 1.00
+example_ratio_2_1.xyz is an xyz file for example.pdb with a Lowenstein ratio of 2.00
+ 
