@@ -12,7 +12,8 @@ pure SiO2 configurations, and doping it with Aluminum to the specified Si:Al rat
 
 There is a catch!
 
-No Aluminum within the structure may have another Aluminum atom as a nearest neighbor.
+No Aluminum within the structure may have another Aluminum atom as a nearest neighbor 
+(ignoring the bridging oxygen atom).
 
 
 #############################################################################################
